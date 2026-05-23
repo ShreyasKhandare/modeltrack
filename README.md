@@ -569,7 +569,6 @@ MIT — See [LICENSE](./LICENSE) for details.
 ### Built with ❤️ by [Shreyas Khandare](https://github.com/ShreyasKhandare)
 
 **ModelTrack is production-ready and deployed on GitHub.**  
-Ready to deploy to Railway when off-peak hours available.
 
 [⭐ Star this repo](https://github.com/ShreyasKhandare/modeltrack) if you find it useful!
 
