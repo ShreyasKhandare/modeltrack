@@ -16,5 +16,5 @@ EXPOSE 8000 8501
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD python -c "import requests; requests.get('http://localhost:8000/health')"
 
-# Default: run API
-CMD ["python", "-m", "modeltrack.api.main"]
+# Default: run API (Railway injects $PORT)
+CMD ["sh", "-c", "uvicorn modeltrack.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

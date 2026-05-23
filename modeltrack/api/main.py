@@ -63,6 +63,10 @@ def create_app() -> FastAPI:
     return app
 
 
+# Module-level app instance for uvicorn / Railway
+app = create_app()
+
+
 if __name__ == "__main__":
     import uvicorn
 
