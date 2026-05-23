@@ -37,7 +37,7 @@ async def start_ab_test(req: ABTestStartSchema):
     - **req.traffic_split**: Traffic allocation for model B (0-1)
     """
     try:
-        test_id = generate_id("test_")
+        test_id = generate_id()
         created_at = timestamp_now()
 
         with get_session() as session:
@@ -99,7 +99,7 @@ async def record_observation(test_id: str, req: ABTestRecordSchema):
                     detail=f"Test is not running: {test.status}",
                 )
 
-            observation_id = generate_id("obs_")
+            observation_id = generate_id()
             obs = ABTestObservation(
                 id=observation_id,
                 test_id=test_id,

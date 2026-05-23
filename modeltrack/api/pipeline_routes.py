@@ -45,7 +45,7 @@ async def run_pipeline(pipeline_name: str, req: PipelineRunRequestSchema):
             )
 
         # Create a pipeline run record
-        run_id = generate_id("run_")
+        run_id = generate_id()
         started_at = timestamp_now()
 
         with get_session() as session:

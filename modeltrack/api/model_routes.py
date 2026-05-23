@@ -55,7 +55,7 @@ async def register_model(model_name: str, req: ModelSaveRequestSchema):
 
         # Register the model
         created_at = timestamp_now()
-        model_id = generate_id("model_")
+        model_id = generate_id()
 
         with get_session() as session:
             record = ModelRecord(

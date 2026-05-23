@@ -21,3 +21,5 @@ aiofiles==23.2.1
 plotly==5.18.0
 networkx==3.2.1
 packaging==23.2
+tabulate==0.9.0
+requests==2.31.0

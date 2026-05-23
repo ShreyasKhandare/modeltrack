@@ -7,8 +7,10 @@ import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from fastapi.testclient import TestClient
 
 from modeltrack.shared.database import Base, init_db
+from modeltrack.api.main import create_app
 
 
 @pytest.fixture
@@ -40,3 +42,12 @@ def sample_df():
             "timestamp": pd.date_range("2024-01-01", periods=100, freq="h"),
         }
     )
+
+
+@pytest.fixture(scope="module")
+def persistent_client():
+    """Module-scoped persistent test client with single database."""
+    app = create_app()
+    client = TestClient(app)
+    init_db()
+    return client
