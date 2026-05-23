@@ -28,7 +28,7 @@ class LineageTracker:
 
         # In-memory graph
         self._nodes: Dict[str, dict] = {}  # node_id -> node_dict
-        self._edges: List[dict] = []       # list of {id, source_id, target_id}
+        self._edges: List[dict] = []  # list of {id, source_id, target_id}
 
     # ── node recording ───────────────────────────────────────────────────────
 
@@ -115,7 +115,8 @@ class LineageTracker:
         """
         # Find matching start nodes
         start_nodes = [
-            nid for nid, node in self._nodes.items()
+            nid
+            for nid, node in self._nodes.items()
             if record_id in node.get("name", "") or record_id == nid
         ]
 
@@ -210,7 +211,9 @@ class LineageTracker:
                 record.metadata_json = safe_json_dumps(metadata)
                 self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (lineage node update)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (lineage node update)", extra={"error": str(exc)}
+            )
 
     def _persist_edge(self, edge: dict) -> None:
         if self._session is None:

@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://modeltrack:modeltrack@postgres:5432/modeltrack
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+    volumes:
+      - ./models_store:/app/models_store
+      - ./pipelines_store:/app/pipelines_store
+
+  dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - DATABASE_URL=postgresql://modeltrack:modeltrack@postgres:5432/modeltrack
+    command: streamlit run dashboards/main.py --server.port 8501
+    depends_on:
+      - postgres
+    volumes:
+      - ./models_store:/app/models_store
+      - ./pipelines_store:/app/pipelines_store
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=modeltrack
+      - POSTGRES_PASSWORD=modeltrack
+      - POSTGRES_DB=modeltrack
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

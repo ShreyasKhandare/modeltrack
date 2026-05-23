@@ -151,11 +151,13 @@ def history(name: str, limit: int):
         for r in result["runs"]
     ]
 
-    click.echo(tabulate(
-        table_data,
-        headers=["Run ID", "Status", "Started At", "Completed At"],
-        tablefmt="simple",
-    ))
+    click.echo(
+        tabulate(
+            table_data,
+            headers=["Run ID", "Status", "Started At", "Completed At"],
+            tablefmt="simple",
+        )
+    )
 
 
 @pipeline.command()
@@ -163,7 +165,9 @@ def history(name: str, limit: int):
 @click.argument("run_id")
 def lineage(name: str, run_id: str):
     """Show data lineage for a pipeline run."""
-    result = make_request("GET", f"/pipelines/{name}/lineage", params={"run_id": run_id})
+    result = make_request(
+        "GET", f"/pipelines/{name}/lineage", params={"run_id": run_id}
+    )
 
     nodes = result.get("nodes", [])
     edges = result.get("edges", [])
@@ -174,7 +178,9 @@ def lineage(name: str, run_id: str):
     click.echo("Nodes:")
     if nodes:
         table_data = [[n["id"], n["name"], n["type"]] for n in nodes]
-        click.echo(tabulate(table_data, headers=["ID", "Name", "Type"], tablefmt="simple"))
+        click.echo(
+            tabulate(table_data, headers=["ID", "Name", "Type"], tablefmt="simple")
+        )
     else:
         click.echo("  None")
 
@@ -182,7 +188,9 @@ def lineage(name: str, run_id: str):
     click.echo("Edges:")
     if edges:
         table_data = [[e["source_id"], "->", e["target_id"]] for e in edges]
-        click.echo(tabulate(table_data, headers=["Source", "", "Target"], tablefmt="simple"))
+        click.echo(
+            tabulate(table_data, headers=["Source", "", "Target"], tablefmt="simple")
+        )
     else:
         click.echo("  None")
 
@@ -230,7 +238,11 @@ def save(name: str, version: str, metrics: str, hyperparams: str, description: s
 
 @model.command()
 @click.argument("name")
-@click.option("--version", default=None, help="Specific version; if not provided shows all versions")
+@click.option(
+    "--version",
+    default=None,
+    help="Specific version; if not provided shows all versions",
+)
 def get(name: str, version: Optional[str]):
     """Get model info."""
     if version:
@@ -241,7 +253,9 @@ def get(name: str, version: Optional[str]):
         if result.get("promoted_at"):
             click.echo(f"Promoted: {result['promoted_at']}")
         click.echo(f"Metrics: {json.dumps(result['metrics'], indent=2)}")
-        click.echo(f"Hyperparameters: {json.dumps(result['hyperparameters'], indent=2)}")
+        click.echo(
+            f"Hyperparameters: {json.dumps(result['hyperparameters'], indent=2)}"
+        )
     else:
         result = make_request("GET", f"/models/{name}/versions")
         versions = result.get("versions", [])
@@ -258,11 +272,13 @@ def get(name: str, version: Optional[str]):
             ]
             for v in versions
         ]
-        click.echo(tabulate(
-            table_data,
-            headers=["Version", "Stage", "Created At", "Promoted At"],
-            tablefmt="simple",
-        ))
+        click.echo(
+            tabulate(
+                table_data,
+                headers=["Version", "Stage", "Created At", "Promoted At"],
+                tablefmt="simple",
+            )
+        )
 
 
 @model.command()
@@ -286,11 +302,13 @@ def versions(name: str):
         for v in versions
     ]
 
-    click.echo(tabulate(
-        table_data,
-        headers=["Version", "Stage", "Created At", "Promoted At"],
-        tablefmt="simple",
-    ))
+    click.echo(
+        tabulate(
+            table_data,
+            headers=["Version", "Stage", "Created At", "Promoted At"],
+            tablefmt="simple",
+        )
+    )
 
 
 @model.command()
@@ -358,7 +376,9 @@ def test_group():
 @click.argument("name")
 @click.argument("model_a")
 @click.argument("model_b")
-@click.option("--split", default=0.1, type=float, help="Traffic split for model B (0-1)")
+@click.option(
+    "--split", default=0.1, type=float, help="Traffic split for model B (0-1)"
+)
 def start(name: str, model_a: str, model_b: str, split: float):
     """Start an A/B test."""
     if not (0.0 <= split <= 1.0):

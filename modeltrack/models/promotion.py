@@ -72,9 +72,7 @@ class PromotionGate:
         }
 
     def __repr__(self) -> str:  # pragma: no cover
-        return (
-            f"<PromotionGate {self.metric} {self.operator} {self.threshold}>"
-        )
+        return f"<PromotionGate {self.metric} {self.operator} {self.threshold}>"
 
 
 # ─────────────────────────── PromotionManager ────────────────────────────────
@@ -144,7 +142,7 @@ class PromotionManager:
         # Evaluate gates
         gates_passed: List[dict] = []
         gates_failed: List[dict] = []
-        for gate in (gates or []):
+        for gate in gates or []:
             passed = gate.check(model_metrics)
             gate_dict = gate.to_dict()
             gate_dict["value"] = model_metrics.get(gate.metric)
@@ -219,7 +217,8 @@ class PromotionManager:
             # Find the last production version from audit trail
             trail = self._audit_trail.get(name, [])
             prod_events = [
-                e for e in trail
+                e
+                for e in trail
                 if e.get("target_stage") == "production" and e.get("success")
             ]
             if len(prod_events) < 2:

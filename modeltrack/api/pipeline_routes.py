@@ -8,7 +8,12 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from modeltrack.pipelines.storage import PipelineStorage
-from modeltrack.shared.database import get_session, PipelineRun, LineageNode, LineageEdge
+from modeltrack.shared.database import (
+    get_session,
+    PipelineRun,
+    LineageNode,
+    LineageEdge,
+)
 from modeltrack.shared.errors import PipelineError, ModelTrackError
 from modeltrack.shared.logger import get_logger
 from modeltrack.shared.utils import generate_id, timestamp_now
@@ -98,7 +103,9 @@ async def run_pipeline(pipeline_name: str, req: PipelineRunRequestSchema):
                     run.completed_at = datetime.now()
                     session.commit()
 
-            raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {exc}")
+            raise HTTPException(
+                status_code=500, detail=f"Pipeline execution failed: {exc}"
+            )
 
     except HTTPException:
         raise
@@ -108,9 +115,7 @@ async def run_pipeline(pipeline_name: str, req: PipelineRunRequestSchema):
 
 
 @router.get("/{pipeline_name}/status")
-async def get_pipeline_status(
-    pipeline_name: str, run_id: Optional[str] = Query(None)
-):
+async def get_pipeline_status(pipeline_name: str, run_id: Optional[str] = Query(None)):
     """
     Get pipeline status.
 
@@ -137,7 +142,9 @@ async def get_pipeline_status(
                 "pipeline_name": run.pipeline_name,
                 "status": run.status,
                 "started_at": run.started_at.isoformat() + "Z",
-                "completed_at": run.completed_at.isoformat() + "Z" if run.completed_at else None,
+                "completed_at": (
+                    run.completed_at.isoformat() + "Z" if run.completed_at else None
+                ),
                 "error": run.error,
             }
 
@@ -149,9 +156,7 @@ async def get_pipeline_status(
 
 
 @router.get("/{pipeline_name}/runs")
-async def list_pipeline_runs(
-    pipeline_name: str, limit: int = Query(10, ge=1, le=100)
-):
+async def list_pipeline_runs(pipeline_name: str, limit: int = Query(10, ge=1, le=100)):
     """
     List recent pipeline runs.
 
@@ -176,7 +181,9 @@ async def list_pipeline_runs(
                         "run_id": r.id,
                         "status": r.status,
                         "started_at": r.started_at.isoformat() + "Z",
-                        "completed_at": r.completed_at.isoformat() + "Z" if r.completed_at else None,
+                        "completed_at": (
+                            r.completed_at.isoformat() + "Z" if r.completed_at else None
+                        ),
                     }
                     for r in runs
                 ],
@@ -202,18 +209,10 @@ async def get_lineage(pipeline_name: str, run_id: str):
                 raise HTTPException(status_code=404, detail="Pipeline run not found")
 
             # Get lineage nodes
-            nodes = (
-                session.query(LineageNode)
-                .filter_by(pipeline_run_id=run_id)
-                .all()
-            )
+            nodes = session.query(LineageNode).filter_by(pipeline_run_id=run_id).all()
 
             # Get lineage edges
-            edges = (
-                session.query(LineageEdge)
-                .filter_by(pipeline_run_id=run_id)
-                .all()
-            )
+            edges = session.query(LineageEdge).filter_by(pipeline_run_id=run_id).all()
 
             return {
                 "pipeline_name": pipeline_name,
@@ -223,13 +222,14 @@ async def get_lineage(pipeline_name: str, run_id: str):
                         "id": n.id,
                         "name": n.name,
                         "type": n.node_type,
-                        "metadata": json.loads(n.metadata_json) if n.metadata_json else {},
+                        "metadata": (
+                            json.loads(n.metadata_json) if n.metadata_json else {}
+                        ),
                     }
                     for n in nodes
                 ],
                 "edges": [
-                    {"source_id": e.source_id, "target_id": e.target_id}
-                    for e in edges
+                    {"source_id": e.source_id, "target_id": e.target_id} for e in edges
                 ],
             }
 

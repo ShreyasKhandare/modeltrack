@@ -98,8 +98,11 @@ class RetrainingJob:
 
         # ── 1. Train new model ──────────────────────────────────────────────
         try:
-            new_model = self.train_func(new_data=new_data) if new_data is not None \
+            new_model = (
+                self.train_func(new_data=new_data)
+                if new_data is not None
                 else self.train_func()
+            )
         except TypeError:
             # Train func doesn't accept new_data
             new_model = self.train_func()
@@ -109,7 +112,9 @@ class RetrainingJob:
             existing = self._registry.list_versions(self.model_name)
             new_model.name = self.model_name
             if existing:
-                last_version = sorted(existing, key=lambda v: v["version"])[-1]["version"]
+                last_version = sorted(existing, key=lambda v: v["version"])[-1][
+                    "version"
+                ]
                 new_model.version = self._bump_version(last_version)
             else:
                 if not new_model.version:
@@ -176,9 +181,7 @@ class RetrainingJob:
 
     # ── evaluation ────────────────────────────────────────────────────────────
 
-    def evaluate_improvement(
-        self, old_metrics: dict, new_metrics: dict
-    ) -> bool:
+    def evaluate_improvement(self, old_metrics: dict, new_metrics: dict) -> bool:
         """
         Return True if *new_metrics* improves over *old_metrics* by at least
         *improvement_threshold* on the primary metric.

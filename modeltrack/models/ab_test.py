@@ -40,9 +40,7 @@ def _rmse(predictions: List[float], actuals: List[float]) -> float:
     )
 
 
-def _welch_t_test(
-    x1: List[float], x2: List[float]
-) -> Tuple[float, float]:
+def _welch_t_test(x1: List[float], x2: List[float]) -> Tuple[float, float]:
     """
     Welch's two-sample t-test.
 
@@ -55,7 +53,7 @@ def _welch_t_test(
 
     m1, m2 = _mean(x1), _mean(x2)
     s1, s2 = _std(x1), _std(x2)
-    v1, v2 = (s1 ** 2) / n1, (s2 ** 2) / n2
+    v1, v2 = (s1**2) / n1, (s2**2) / n2
     denom = math.sqrt(v1 + v2)
     if denom == 0:
         return 0.0, 1.0
@@ -64,7 +62,7 @@ def _welch_t_test(
 
     # Welch–Satterthwaite degrees of freedom
     df_num = (v1 + v2) ** 2
-    df_den = (v1 ** 2) / (n1 - 1) + (v2 ** 2) / (n2 - 1)
+    df_den = (v1**2) / (n1 - 1) + (v2**2) / (n2 - 1)
     if df_den == 0:
         return t_stat, 1.0
     df = df_num / df_den
@@ -232,7 +230,9 @@ class ABTest:
             obs_list = self._obs[key]
             preds = [o["prediction"] for o in obs_list]
             actuals = [o["actual"] for o in obs_list]
-            latencies = [o["latency_ms"] for o in obs_list if o["latency_ms"] is not None]
+            latencies = [
+                o["latency_ms"] for o in obs_list if o["latency_ms"] is not None
+            ]
 
             result[key] = {
                 "count": len(obs_list),
@@ -247,12 +247,8 @@ class ABTest:
         Return True if the difference between models is statistically
         significant at level *alpha* (two-sided Welch's t-test on errors).
         """
-        errors_a = [
-            o["prediction"] - o["actual"] for o in self._obs["model_a"]
-        ]
-        errors_b = [
-            o["prediction"] - o["actual"] for o in self._obs["model_b"]
-        ]
+        errors_a = [o["prediction"] - o["actual"] for o in self._obs["model_a"]]
+        errors_b = [o["prediction"] - o["actual"] for o in self._obs["model_b"]]
         if len(errors_a) < 2 or len(errors_b) < 2:
             return False
         _, p_value = _welch_t_test(errors_a, errors_b)
@@ -320,7 +316,9 @@ class ABTest:
         obj.status = record.status
         obj._winner = record.winner
         obj.created_at = record.created_at.isoformat()
-        obj.completed_at = record.completed_at.isoformat() if record.completed_at else None
+        obj.completed_at = (
+            record.completed_at.isoformat() if record.completed_at else None
+        )
 
         # Reload observations
         obs_records = (
@@ -361,7 +359,9 @@ class ABTest:
             self._session.add(record)
             self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (ab test create)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (ab test create)", extra={"error": str(exc)}
+            )
 
     def _update_db_record(self) -> None:
         try:
@@ -378,7 +378,9 @@ class ABTest:
                 record.results_json = json.dumps(self.get_metrics())
                 self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (ab test update)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (ab test update)", extra={"error": str(exc)}
+            )
 
     def _persist_observation(self, obs: dict) -> None:
         try:
@@ -390,7 +392,9 @@ class ABTest:
                 model_key=obs["model_key"],
                 prediction=obs["prediction"],
                 actual=obs["actual"],
-                timestamp=datetime.fromisoformat(obs["timestamp"].replace("Z", "+00:00")),
+                timestamp=datetime.fromisoformat(
+                    obs["timestamp"].replace("Z", "+00:00")
+                ),
                 latency_ms=obs["latency_ms"],
             )
             self._session.add(record)

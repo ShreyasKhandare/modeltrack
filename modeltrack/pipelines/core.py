@@ -26,7 +26,9 @@ class Task:
     execution dependencies.
     """
 
-    def __init__(self, name: str, func: Callable, inputs: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, name: str, func: Callable, inputs: Optional[Dict[str, Any]] = None
+    ):
         self.name = name
         self.func = func
         self.inputs: Dict[str, Any] = inputs or {}
@@ -178,9 +180,7 @@ class Pipeline:
                 adj[task.name].append(nxt.name)
                 in_degree[nxt.name] += 1
 
-        queue: deque = deque(
-            [name for name, deg in in_degree.items() if deg == 0]
-        )
+        queue: deque = deque([name for name, deg in in_degree.items() if deg == 0])
         order: List[Task] = []
 
         while queue:
@@ -340,7 +340,8 @@ class DAGExecutor:
                     result = await task.func(**{**task.inputs, **task_kwargs})
                 else:
                     result = await asyncio.get_event_loop().run_in_executor(
-                        None, lambda t=task, kw=task_kwargs: t.func(**{**t.inputs, **kw})
+                        None,
+                        lambda t=task, kw=task_kwargs: t.func(**{**t.inputs, **kw}),
                     )
                 results[task.name] = result
                 self._update_task_run(task_run_id, "success")
@@ -355,7 +356,11 @@ class DAGExecutor:
                 self._update_task_run(task_run_id, "failed", error=err_msg)
                 logger.error(
                     "Task failed",
-                    extra={"task": task.name, "error": err_msg, "pipeline_run_id": run_id},
+                    extra={
+                        "task": task.name,
+                        "error": err_msg,
+                        "pipeline_run_id": run_id,
+                    },
                 )
                 # Stop on first failure
                 break
@@ -385,16 +390,16 @@ class DAGExecutor:
             import concurrent.futures
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(
-                    lambda: asyncio.run(self.run(p, context))
-                )
+                future = executor.submit(lambda: asyncio.run(self.run(p, context)))
                 return future.result()
         else:
             return asyncio.run(self.run(p, context))
 
     # ── DB helpers (no-op when session is None) ─────────────────────────────
 
-    def _create_pipeline_run(self, run_id: str, name: str, started_at: datetime) -> None:
+    def _create_pipeline_run(
+        self, run_id: str, name: str, started_at: datetime
+    ) -> None:
         if self._session is None:
             return
         try:
@@ -409,7 +414,9 @@ class DAGExecutor:
             self._session.add(record)
             self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (pipeline run create)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (pipeline run create)", extra={"error": str(exc)}
+            )
 
     def _update_pipeline_run(
         self, run_id: str, status: str, error: Optional[str] = None
@@ -427,10 +434,16 @@ class DAGExecutor:
                     record.error = error
                 self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (pipeline run update)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (pipeline run update)", extra={"error": str(exc)}
+            )
 
     def _create_task_run(
-        self, task_run_id: str, pipeline_run_id: str, task_name: str, started_at: datetime
+        self,
+        task_run_id: str,
+        pipeline_run_id: str,
+        task_name: str,
+        started_at: datetime,
     ) -> None:
         if self._session is None:
             return
@@ -447,7 +460,9 @@ class DAGExecutor:
             self._session.add(record)
             self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (task run create)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (task run create)", extra={"error": str(exc)}
+            )
 
     def _update_task_run(
         self, task_run_id: str, status: str, error: Optional[str] = None
@@ -465,4 +480,6 @@ class DAGExecutor:
                     record.error = error
                 self._session.commit()
         except Exception as exc:
-            logger.warning("DB write failed (task run update)", extra={"error": str(exc)})
+            logger.warning(
+                "DB write failed (task run update)", extra={"error": str(exc)}
+            )

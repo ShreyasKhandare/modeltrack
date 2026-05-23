@@ -151,7 +151,11 @@ class ModelRegistry:
 
         logger.info(
             "Model saved",
-            extra={"model_name": model.name, "version": model.version, "id": model.model_id},
+            extra={
+                "model_name": model.name,
+                "version": model.version,
+                "id": model.model_id,
+            },
         )
         return model.model_id
 
@@ -206,7 +210,9 @@ class ModelRegistry:
 
         records = (
             self._session.query(ModelRecord)
-            .filter(ModelRecord.name == name, ModelRecord.is_active == True)  # noqa: E712
+            .filter(
+                ModelRecord.name == name, ModelRecord.is_active == True
+            )  # noqa: E712
             .all()
         )
         return [self._record_to_dict(r) for r in records]
@@ -293,14 +299,14 @@ class ModelRegistry:
         record.is_active = False
         self._session.commit()
 
-        logger.info("Model soft-deleted", extra={"model_name": name, "version": version})
+        logger.info(
+            "Model soft-deleted", extra={"model_name": name, "version": version}
+        )
         return True
 
     # ── compare ───────────────────────────────────────────────────────────────
 
-    def compare_versions(
-        self, name: str, version_a: str, version_b: str
-    ) -> dict:
+    def compare_versions(self, name: str, version_a: str, version_b: str) -> dict:
         """
         Compare metrics between two versions of *name*.
 
@@ -391,9 +397,11 @@ class ModelRegistry:
             model_path=model.model_path or "",
             metrics_json=safe_json_dumps(model.metrics),
             hyperparams_json=safe_json_dumps(model.hyperparameters),
-            created_at=datetime.fromisoformat(model.created_at.replace("Z", "+00:00"))
-            if isinstance(model.created_at, str)
-            else datetime.now(timezone.utc),
+            created_at=(
+                datetime.fromisoformat(model.created_at.replace("Z", "+00:00"))
+                if isinstance(model.created_at, str)
+                else datetime.now(timezone.utc)
+            ),
             is_active=True,
         )
         self._session.add(record)
@@ -433,6 +441,8 @@ class ModelRegistry:
             "metrics": json.loads(record.metrics_json or "{}"),
             "hyperparameters": json.loads(record.hyperparams_json or "{}"),
             "created_at": record.created_at.isoformat() if record.created_at else None,
-            "promoted_at": record.promoted_at.isoformat() if record.promoted_at else None,
+            "promoted_at": (
+                record.promoted_at.isoformat() if record.promoted_at else None
+            ),
             "is_active": record.is_active,
         }

@@ -38,7 +38,9 @@ class PipelineStorage:
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=2)
 
-        logger.info("Pipeline saved", extra={"pipeline_name": pipeline.name, "path": path})
+        logger.info(
+            "Pipeline saved", extra={"pipeline_name": pipeline.name, "path": path}
+        )
         return path
 
     def load_pipeline(self, name: str) -> dict:
@@ -50,7 +52,9 @@ class PipelineStorage:
         """
         path = os.path.join(self.storage_dir, f"{name}.json")
         if not os.path.exists(path):
-            raise FileNotFoundError(f"Pipeline not found: '{name}' (expected at {path})")
+            raise FileNotFoundError(
+                f"Pipeline not found: '{name}' (expected at {path})"
+            )
 
         with open(path, "r", encoding="utf-8") as fh:
             data = json.load(fh)

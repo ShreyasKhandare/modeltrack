@@ -189,7 +189,9 @@ class SchemaValidator:
                 continue
 
             actual_dtype = str(df[col].dtype)
-            expected_canonical = _DTYPE_MAP.get(expected_dtype_str.lower(), expected_dtype_str)
+            expected_canonical = _DTYPE_MAP.get(
+                expected_dtype_str.lower(), expected_dtype_str
+            )
 
             # Allow loose numeric compatibility
             ok = self._dtypes_compatible(actual_dtype, expected_canonical)
@@ -220,7 +222,16 @@ class SchemaValidator:
         if actual == expected:
             return True
         # Numeric families
-        int_types = {"int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"}
+        int_types = {
+            "int8",
+            "int16",
+            "int32",
+            "int64",
+            "uint8",
+            "uint16",
+            "uint32",
+            "uint64",
+        }
         float_types = {"float16", "float32", "float64"}
         if expected in int_types and actual in int_types:
             return True

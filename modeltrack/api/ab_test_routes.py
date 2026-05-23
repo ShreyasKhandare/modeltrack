@@ -91,7 +91,9 @@ async def record_observation(test_id: str, req: ABTestRecordSchema):
             # Verify test exists
             test = session.query(ABTestRecord).filter_by(id=test_id).first()
             if not test:
-                raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
+                raise HTTPException(
+                    status_code=404, detail=f"Test not found: {test_id}"
+                )
 
             if test.status != "running":
                 raise HTTPException(
@@ -142,7 +144,9 @@ async def get_results(test_id: str):
         with get_session() as session:
             test = session.query(ABTestRecord).filter_by(id=test_id).first()
             if not test:
-                raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
+                raise HTTPException(
+                    status_code=404, detail=f"Test not found: {test_id}"
+                )
 
             # Get observations for both models
             obs_a = (
@@ -165,9 +169,7 @@ async def get_results(test_id: str):
                 actuals = [o.actual for o in observations]
 
                 # Simple accuracy-like metric (count of close predictions)
-                close = sum(
-                    1 for p, a in zip(predictions, actuals) if abs(p - a) < 0.5
-                )
+                close = sum(1 for p, a in zip(predictions, actuals) if abs(p - a) < 0.5)
                 accuracy = close / len(predictions)
 
                 # Mean absolute error
@@ -177,9 +179,7 @@ async def get_results(test_id: str):
 
                 # Average latency
                 latencies = [o.latency_ms for o in observations if o.latency_ms]
-                avg_latency = (
-                    sum(latencies) / len(latencies) if latencies else None
-                )
+                avg_latency = sum(latencies) / len(latencies) if latencies else None
 
                 return {
                     "accuracy": round(accuracy, 4),
@@ -231,7 +231,9 @@ async def complete_test(test_id: str, winner: Optional[str] = Query(None)):
         with get_session() as session:
             test = session.query(ABTestRecord).filter_by(id=test_id).first()
             if not test:
-                raise HTTPException(status_code=404, detail=f"Test not found: {test_id}")
+                raise HTTPException(
+                    status_code=404, detail=f"Test not found: {test_id}"
+                )
 
             if test.status != "running":
                 raise HTTPException(
@@ -254,14 +256,10 @@ async def complete_test(test_id: str, winner: Optional[str] = Query(None)):
 
                 if obs_a and obs_b:
                     acc_a = sum(
-                        1
-                        for o in obs_a
-                        if abs(o.prediction - o.actual) < 0.5
+                        1 for o in obs_a if abs(o.prediction - o.actual) < 0.5
                     ) / len(obs_a)
                     acc_b = sum(
-                        1
-                        for o in obs_b
-                        if abs(o.prediction - o.actual) < 0.5
+                        1 for o in obs_b if abs(o.prediction - o.actual) < 0.5
                     ) / len(obs_b)
 
                     winner = "model_a" if acc_a > acc_b else "model_b"
@@ -318,7 +316,9 @@ async def list_tests(limit: int = Query(10, ge=1, le=100)):
                         "model_b": t.model_b,
                         "winner": t.winner,
                         "created_at": t.created_at.isoformat() + "Z",
-                        "completed_at": t.completed_at.isoformat() + "Z" if t.completed_at else None,
+                        "completed_at": (
+                            t.completed_at.isoformat() + "Z" if t.completed_at else None
+                        ),
                     }
                     for t in tests
                 ],

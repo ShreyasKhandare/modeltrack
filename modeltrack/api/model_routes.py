@@ -117,13 +117,9 @@ async def get_model(model_name: str, version: str):
                     detail=f"Model not found: {model_name}:{version}",
                 )
 
-            metrics = (
-                json.loads(record.metrics_json) if record.metrics_json else {}
-            )
+            metrics = json.loads(record.metrics_json) if record.metrics_json else {}
             hyperparams = (
-                json.loads(record.hyperparams_json)
-                if record.hyperparams_json
-                else {}
+                json.loads(record.hyperparams_json) if record.hyperparams_json else {}
             )
 
             return ModelResponseSchema(
@@ -133,7 +129,9 @@ async def get_model(model_name: str, version: str):
                 metrics=metrics,
                 hyperparameters=hyperparams,
                 created_at=record.created_at.isoformat() + "Z",
-                promoted_at=record.promoted_at.isoformat() + "Z" if record.promoted_at else None,
+                promoted_at=(
+                    record.promoted_at.isoformat() + "Z" if record.promoted_at else None
+                ),
             )
 
     except HTTPException:
@@ -165,13 +163,9 @@ async def get_production_model(model_name: str):
                     detail=f"No production model found for: {model_name}",
                 )
 
-            metrics = (
-                json.loads(record.metrics_json) if record.metrics_json else {}
-            )
+            metrics = json.loads(record.metrics_json) if record.metrics_json else {}
             hyperparams = (
-                json.loads(record.hyperparams_json)
-                if record.hyperparams_json
-                else {}
+                json.loads(record.hyperparams_json) if record.hyperparams_json else {}
             )
 
             return ModelResponseSchema(
@@ -181,7 +175,9 @@ async def get_production_model(model_name: str):
                 metrics=metrics,
                 hyperparameters=hyperparams,
                 created_at=record.created_at.isoformat() + "Z",
-                promoted_at=record.promoted_at.isoformat() + "Z" if record.promoted_at else None,
+                promoted_at=(
+                    record.promoted_at.isoformat() + "Z" if record.promoted_at else None
+                ),
             )
 
     except HTTPException:
@@ -217,7 +213,9 @@ async def list_versions(model_name: str, limit: int = Query(10, ge=1, le=100)):
                         "version": r.version,
                         "stage": r.stage,
                         "created_at": r.created_at.isoformat() + "Z",
-                        "promoted_at": r.promoted_at.isoformat() + "Z" if r.promoted_at else None,
+                        "promoted_at": (
+                            r.promoted_at.isoformat() + "Z" if r.promoted_at else None
+                        ),
                     }
                     for r in records
                 ],
@@ -261,11 +259,7 @@ async def promote_model(model_name: str, req: ModelPromoteRequestSchema):
             # Check quality gates
             gates_passed = []
             if req.gates:
-                metrics = (
-                    json.loads(record.metrics_json)
-                    if record.metrics_json
-                    else {}
-                )
+                metrics = json.loads(record.metrics_json) if record.metrics_json else {}
                 for gate in req.gates:
                     metric = gate.get("metric")
                     threshold = gate.get("threshold")
@@ -335,9 +329,7 @@ async def promote_model(model_name: str, req: ModelPromoteRequestSchema):
 
 
 @router.post("/{model_name}/rollback", response_model=dict)
-async def rollback_model(
-    model_name: str, to_version: Optional[str] = Query(None)
-):
+async def rollback_model(model_name: str, to_version: Optional[str] = Query(None)):
     """
     Rollback production model to a previous version.
 

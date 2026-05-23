@@ -5,7 +5,6 @@ Pydantic schemas for API requests and responses.
 from typing import Optional
 from pydantic import BaseModel, Field
 
-
 # ─────────────────────────── Pipeline Schemas ───────────────────────────────
 
 
@@ -45,7 +44,9 @@ class PipelineRunResponseSchema(BaseModel):
     """Response from a pipeline run."""
 
     pipeline_run_id: str = Field(..., description="Unique run ID")
-    status: str = Field(..., description="Run status (pending, running, completed, failed)")
+    status: str = Field(
+        ..., description="Run status (pending, running, completed, failed)"
+    )
     started_at: str = Field(..., description="ISO-8601 start time")
     completed_at: Optional[str] = Field(None, description="ISO-8601 completion time")
     duration_seconds: Optional[float] = Field(None, description="Execution duration")
@@ -89,7 +90,9 @@ class ValidationResponseSchema(BaseModel):
     valid_pct: float = Field(..., description="Percentage of valid records")
     total_records: int = Field(..., description="Total records validated")
     valid_records: int = Field(..., description="Number of valid records")
-    warnings: list[dict] = Field(default_factory=list, description="Validation warnings")
+    warnings: list[dict] = Field(
+        default_factory=list, description="Validation warnings"
+    )
     errors: list[dict] = Field(default_factory=list, description="Validation errors")
 
     class Config:
@@ -169,9 +172,7 @@ class ModelPromoteRequestSchema(BaseModel):
             "example": {
                 "version": "1.0.0",
                 "target_stage": "production",
-                "gates": [
-                    {"metric": "accuracy", "threshold": 0.90, "operator": ">="}
-                ],
+                "gates": [{"metric": "accuracy", "threshold": 0.90, "operator": ">="}],
             }
         }
 
@@ -214,7 +215,9 @@ class ABTestRecordSchema(BaseModel):
     """Request to record an A/B test observation."""
 
     model_key: str = Field(
-        ..., description="Which model (model_a or model_b)", pattern="^(model_a|model_b)$"
+        ...,
+        description="Which model (model_a or model_b)",
+        pattern="^(model_a|model_b)$",
     )
     prediction: float = Field(..., description="Model prediction")
     actual: float = Field(..., description="Actual outcome")
@@ -238,8 +241,12 @@ class ABTestResultsSchema(BaseModel):
     status: str = Field(..., description="Test status (running, completed)")
     model_a_metrics: dict = Field(..., description="Model A performance metrics")
     model_b_metrics: dict = Field(..., description="Model B performance metrics")
-    winner: Optional[str] = Field(None, description="Winning model (model_a or model_b)")
-    significant: bool = Field(..., description="Whether difference is statistically significant")
+    winner: Optional[str] = Field(
+        None, description="Winning model (model_a or model_b)"
+    )
+    significant: bool = Field(
+        ..., description="Whether difference is statistically significant"
+    )
 
     class Config:
         json_schema_extra = {

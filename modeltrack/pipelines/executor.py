@@ -66,7 +66,9 @@ async def run_with_retry(
     ) from last_exc
 
 
-async def run_with_timeout(func: Callable, timeout: float, *args: Any, **kwargs: Any) -> Any:
+async def run_with_timeout(
+    func: Callable, timeout: float, *args: Any, **kwargs: Any
+) -> Any:
     """
     Execute *func* with a wall-clock *timeout* (seconds).
 

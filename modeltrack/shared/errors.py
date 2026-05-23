@@ -33,7 +33,9 @@ class TaskError(ModelTrackError):
 class ValidationError(ModelTrackError):
     """Raised when data validation fails."""
 
-    def __init__(self, message: str = "", validation_errors: list = None, details: dict = None):
+    def __init__(
+        self, message: str = "", validation_errors: list = None, details: dict = None
+    ):
         self.validation_errors = validation_errors or []
         super().__init__(message, details)
 
@@ -81,7 +83,9 @@ class ABTestError(ModelTrackError):
 class PromotionError(ModelTrackError):
     """Raised when a model promotion fails gate checks or is otherwise invalid."""
 
-    def __init__(self, message: str = "", gates_failed: list = None, details: dict = None):
+    def __init__(
+        self, message: str = "", gates_failed: list = None, details: dict = None
+    ):
         self.gates_failed = gates_failed or []
         super().__init__(message, details)
 

@@ -67,7 +67,9 @@ class TaskRun(Base):
     error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     def __repr__(self) -> str:
-        return f"<TaskRun id={self.id!r} task={self.task_name!r} status={self.status!r}>"
+        return (
+            f"<TaskRun id={self.id!r} task={self.task_name!r} status={self.status!r}>"
+        )
 
 
 class LineageNode(Base):
@@ -77,12 +79,16 @@ class LineageNode(Base):
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    node_type: Mapped[str] = mapped_column(String(32), nullable=False)  # "task" | "data"
+    node_type: Mapped[str] = mapped_column(
+        String(32), nullable=False
+    )  # "task" | "data"
     pipeline_run_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     def __repr__(self) -> str:
-        return f"<LineageNode id={self.id!r} name={self.name!r} type={self.node_type!r}>"
+        return (
+            f"<LineageNode id={self.id!r} name={self.name!r} type={self.node_type!r}>"
+        )
 
 
 class LineageEdge(Base):
@@ -116,9 +122,7 @@ class ModelRecord(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     def __repr__(self) -> str:
-        return (
-            f"<ModelRecord name={self.name!r} version={self.version!r} stage={self.stage!r}>"
-        )
+        return f"<ModelRecord name={self.name!r} version={self.version!r} stage={self.stage!r}>"
 
 
 class ABTestRecord(Base):
@@ -150,7 +154,9 @@ class ABTestObservation(Base):
     test_id: Mapped[str] = mapped_column(
         String(64), ForeignKey("ab_test_records.id"), nullable=False, index=True
     )
-    model_key: Mapped[str] = mapped_column(String(16), nullable=False)  # "model_a" | "model_b"
+    model_key: Mapped[str] = mapped_column(
+        String(16), nullable=False
+    )  # "model_a" | "model_b"
     prediction: Mapped[float] = mapped_column(Float, nullable=False)
     actual: Mapped[float] = mapped_column(Float, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
