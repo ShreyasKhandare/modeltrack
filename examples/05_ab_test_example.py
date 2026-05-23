@@ -2,7 +2,6 @@
 
 import numpy as np
 from modeltrack.models.ab_test import ABTest
-from modeltrack.models.registry import ModelRegistry
 
 if __name__ == "__main__":
     # Create test
@@ -39,4 +38,4 @@ if __name__ == "__main__":
 
     # Complete
     test.complete(winner=winner)
-    print(f"✓ A/B test completed")
+    print("✓ A/B test completed")

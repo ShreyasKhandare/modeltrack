@@ -211,8 +211,8 @@ class ModelRegistry:
         records = (
             self._session.query(ModelRecord)
             .filter(
-                ModelRecord.name == name, ModelRecord.is_active == True
-            )  # noqa: E712
+                ModelRecord.name == name, ModelRecord.is_active == True  # noqa: E712
+            )
             .all()
         )
         return [self._record_to_dict(r) for r in records]

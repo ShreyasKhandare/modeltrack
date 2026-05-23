@@ -1,5 +1,4 @@
 import streamlit as st
-from modeltrack.shared.database import get_session
 from modeltrack.models.registry import ModelRegistry
 from modeltrack.pipelines.storage import PipelineStorage
 import pandas as pd

@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 import json
-from modeltrack.models.registry import ModelRegistry
 from modeltrack.shared.database import get_session, ModelRecord, ABTestRecord
-from .utils import *
+from .utils import (
+    format_metrics,
+    format_timestamp,
+    df_to_table,
+)
 
 
 def show_models_tab():
@@ -15,8 +17,6 @@ def show_models_tab():
     # Tab 1: Model Registry
     with tab1:
         st.subheader("Model Registry")
-
-        registry = get_registry()
 
         with get_session() as session:
             models = session.query(ModelRecord).all()

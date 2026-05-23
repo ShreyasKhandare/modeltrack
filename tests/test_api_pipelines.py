@@ -8,7 +8,13 @@ from datetime import datetime
 import json
 
 from modeltrack.api.main import create_app
-from modeltrack.shared.database import init_db, get_session, PipelineRun, LineageNode, LineageEdge
+from modeltrack.shared.database import (
+    init_db,
+    get_session,
+    PipelineRun,
+    LineageNode,
+    LineageEdge,
+)
 from modeltrack.shared.utils import generate_id, timestamp_now
 
 
@@ -50,10 +56,7 @@ class TestPipelineRun:
         # For now, just test that the endpoint exists and handles the structure
         response = client.post(
             "/pipelines/test_pipeline/run",
-            json={
-                "pipeline_name": "test_pipeline",
-                "context": {"key": "value"}
-            }
+            json={"pipeline_name": "test_pipeline", "context": {"key": "value"}},
         )
         # Will fail if pipeline doesn't exist (404), which is expected
         assert response.status_code in [404, 500]
@@ -64,16 +67,15 @@ class TestPipelineRun:
             "/pipelines/test_pipeline/run",
             json={
                 "pipeline_name": "test_pipeline",
-                "context": {"model_name": "test_model", "version": "1.0"}
-            }
+                "context": {"model_name": "test_model", "version": "1.0"},
+            },
         )
         assert response.status_code in [404, 500]
 
     def test_run_pipeline_validation_error(self, client):
         """Test pipeline run with invalid request."""
         response = client.post(
-            "/pipelines/test_pipeline/run",
-            json={"invalid_field": "value"}
+            "/pipelines/test_pipeline/run", json={"invalid_field": "value"}
         )
         assert response.status_code == 422
 
@@ -84,8 +86,7 @@ class TestPipelineStatus:
     def test_get_pipeline_status_success(self, client, sample_pipeline_run):
         """Test getting pipeline status by run ID."""
         response = client.get(
-            "/pipelines/test_pipeline/status",
-            params={"run_id": sample_pipeline_run}
+            "/pipelines/test_pipeline/status", params={"run_id": sample_pipeline_run}
         )
         assert response.status_code == 200
         data = response.json()
@@ -95,9 +96,7 @@ class TestPipelineStatus:
 
     def test_get_pipeline_latest_status(self, client, sample_pipeline_run):
         """Test getting latest pipeline status without run ID."""
-        response = client.get(
-            "/pipelines/test_pipeline/status"
-        )
+        response = client.get("/pipelines/test_pipeline/status")
         assert response.status_code == 200
         data = response.json()
         assert data["pipeline_name"] == "test_pipeline"
@@ -106,8 +105,7 @@ class TestPipelineStatus:
     def test_get_pipeline_status_not_found(self, client):
         """Test getting status for non-existent run."""
         response = client.get(
-            "/pipelines/nonexistent/status",
-            params={"run_id": "nonexistent_run"}
+            "/pipelines/nonexistent/status", params={"run_id": "nonexistent_run"}
         )
         assert response.status_code == 404
 
@@ -117,10 +115,7 @@ class TestPipelineRuns:
 
     def test_list_pipeline_runs_success(self, client, sample_pipeline_run):
         """Test listing pipeline runs."""
-        response = client.get(
-            "/pipelines/test_pipeline/runs",
-            params={"limit": 10}
-        )
+        response = client.get("/pipelines/test_pipeline/runs", params={"limit": 10})
         assert response.status_code == 200
         data = response.json()
         assert "runs" in data
@@ -128,28 +123,19 @@ class TestPipelineRuns:
 
     def test_list_pipeline_runs_with_limit(self, client, sample_pipeline_run):
         """Test listing pipeline runs with custom limit."""
-        response = client.get(
-            "/pipelines/test_pipeline/runs",
-            params={"limit": 5}
-        )
+        response = client.get("/pipelines/test_pipeline/runs", params={"limit": 5})
         assert response.status_code == 200
         data = response.json()
         assert len(data["runs"]) <= 5
 
     def test_list_pipeline_runs_invalid_limit(self, client):
         """Test listing with invalid limit parameter."""
-        response = client.get(
-            "/pipelines/test_pipeline/runs",
-            params={"limit": 101}
-        )
+        response = client.get("/pipelines/test_pipeline/runs", params={"limit": 101})
         assert response.status_code == 422
 
     def test_list_empty_runs(self, client):
         """Test listing runs for pipeline with no runs."""
-        response = client.get(
-            "/pipelines/nonexistent/runs",
-            params={"limit": 10}
-        )
+        response = client.get("/pipelines/nonexistent/runs", params={"limit": 10})
         assert response.status_code == 200
         data = response.json()
         assert data["total"] == 0
@@ -173,8 +159,7 @@ class TestPipelineLineage:
             session.commit()
 
         response = client.get(
-            f"/pipelines/test_pipeline/lineage",
-            params={"run_id": sample_pipeline_run}
+            f"/pipelines/test_pipeline/lineage", params={"run_id": sample_pipeline_run}
         )
         assert response.status_code == 200
         data = response.json()
@@ -186,8 +171,7 @@ class TestPipelineLineage:
     def test_get_lineage_not_found(self, client):
         """Test getting lineage for non-existent run."""
         response = client.get(
-            "/pipelines/test_pipeline/lineage",
-            params={"run_id": "nonexistent"}
+            "/pipelines/test_pipeline/lineage", params={"run_id": "nonexistent"}
         )
         assert response.status_code == 404
 
@@ -221,8 +205,7 @@ class TestPipelineLineage:
             session.commit()
 
         response = client.get(
-            f"/pipelines/test_pipeline/lineage",
-            params={"run_id": sample_pipeline_run}
+            f"/pipelines/test_pipeline/lineage", params={"run_id": sample_pipeline_run}
         )
         assert response.status_code == 200
         data = response.json()
@@ -235,10 +218,7 @@ class TestPipelineValidation:
 
     def test_validate_data_empty(self, client):
         """Test validating empty data."""
-        response = client.post(
-            "/pipelines/test_pipeline/validate",
-            json={"data": []}
-        )
+        response = client.post("/pipelines/test_pipeline/validate", json={"data": []})
         # Should return 404 if pipeline not found, or 200 if pipeline exists
         # This tests that the endpoint structure and request validation work
         assert response.status_code in [200, 404, 500]
@@ -252,7 +232,7 @@ class TestPipelineValidation:
                     {"feature1": 1.0, "feature2": 2.0},
                     {"feature1": 3.0, "feature2": 4.0},
                 ]
-            }
+            },
         )
         # May return 404 if pipeline not found, or 200 if successful
         assert response.status_code in [200, 404, 500]
@@ -265,7 +245,6 @@ class TestPipelineValidation:
     def test_validate_data_invalid_request(self, client):
         """Test validation with invalid request."""
         response = client.post(
-            "/pipelines/test_pipeline/validate",
-            json={"invalid_field": "value"}
+            "/pipelines/test_pipeline/validate", json={"invalid_field": "value"}
         )
         assert response.status_code == 422

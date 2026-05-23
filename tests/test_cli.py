@@ -37,6 +37,7 @@ class TestInit:
     def test_init_creates_directories(self, runner):
         """Test that init creates required directories."""
         import os
+
         with runner.isolated_filesystem():
             result = runner.invoke(cli, ["init"])
             # Check that directories would be created
@@ -64,10 +65,9 @@ class TestPipelineCommands:
 
     def test_pipeline_run_invalid_context(self, runner):
         """Test pipeline run with invalid JSON context."""
-        result = runner.invoke(cli, [
-            "pipeline", "run", "test_pipeline",
-            "--context", "invalid_json"
-        ])
+        result = runner.invoke(
+            cli, ["pipeline", "run", "test_pipeline", "--context", "invalid_json"]
+        )
         assert result.exit_code != 0
         assert "JSON" in result.output or "json" in result.output
 
@@ -98,28 +98,33 @@ class TestModelCommands:
 
     def test_model_save_invalid_metrics(self, runner):
         """Test model save with invalid JSON metrics."""
-        result = runner.invoke(cli, [
-            "model", "save", "test_model", "1.0.0",
-            "--metrics", "invalid_json"
-        ])
+        result = runner.invoke(
+            cli, ["model", "save", "test_model", "1.0.0", "--metrics", "invalid_json"]
+        )
         assert result.exit_code != 0
         assert "JSON" in result.output or "json" in result.output
 
     def test_model_save_missing_metrics(self, runner):
         """Test model save without required metrics."""
-        result = runner.invoke(cli, [
-            "model", "save", "test_model", "1.0.0"
-        ])
+        result = runner.invoke(cli, ["model", "save", "test_model", "1.0.0"])
         assert result.exit_code != 0
         assert "metrics" in result.output.lower()
 
     def test_model_save_valid(self, runner):
         """Test model save with valid inputs."""
-        result = runner.invoke(cli, [
-            "model", "save", "test_model", "1.0.0",
-            "--metrics", '{"accuracy": 0.95}',
-            "--hyperparams", '{"n_estimators": 100}'
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "model",
+                "save",
+                "test_model",
+                "1.0.0",
+                "--metrics",
+                '{"accuracy": 0.95}',
+                "--hyperparams",
+                '{"n_estimators": 100}',
+            ],
+        )
         # Will fail without API server, but structure is correct
         assert "model" in result.output.lower() or "error" in result.output.lower()
 
@@ -140,10 +145,18 @@ class TestModelCommands:
 
     def test_model_promote_invalid_gates(self, runner):
         """Test model promote with invalid JSON gates."""
-        result = runner.invoke(cli, [
-            "model", "promote", "test_model", "1.0.0", "staging",
-            "--gates", "invalid_json"
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "model",
+                "promote",
+                "test_model",
+                "1.0.0",
+                "staging",
+                "--gates",
+                "invalid_json",
+            ],
+        )
         assert result.exit_code != 0
         assert "JSON" in result.output or "json" in result.output
 
@@ -169,10 +182,9 @@ class TestTestCommands:
 
     def test_test_start_invalid_split(self, runner):
         """Test test start with invalid traffic split."""
-        result = runner.invoke(cli, [
-            "test", "start", "test_name", "model_a", "model_b",
-            "--split", "1.5"
-        ])
+        result = runner.invoke(
+            cli, ["test", "start", "test_name", "model_a", "model_b", "--split", "1.5"]
+        )
         assert result.exit_code != 0
         assert "split" in result.output.lower()
 
@@ -226,28 +238,34 @@ class TestJSONInputValidation:
     def test_context_json_parsing(self, runner):
         """Test context JSON parsing."""
         # Valid JSON
-        result = runner.invoke(cli, [
-            "pipeline", "run", "test",
-            "--context", '{"key": "value"}'
-        ])
+        result = runner.invoke(
+            cli, ["pipeline", "run", "test", "--context", '{"key": "value"}']
+        )
         # Should fail on API connection, not JSON parsing
         assert "JSON" not in result.output
 
     def test_metrics_json_parsing(self, runner):
         """Test metrics JSON parsing."""
-        result = runner.invoke(cli, [
-            "model", "save", "m", "1.0",
-            "--metrics", '{"accuracy": 0.95}'
-        ])
+        result = runner.invoke(
+            cli, ["model", "save", "m", "1.0", "--metrics", '{"accuracy": 0.95}']
+        )
         # Should fail on API connection, not JSON parsing
         assert "JSON" not in result.output or "invalid" not in result.output.lower()
 
     def test_hyperparams_json_parsing(self, runner):
         """Test hyperparameters JSON parsing."""
-        result = runner.invoke(cli, [
-            "model", "save", "m", "1.0",
-            "--metrics", '{"accuracy": 0.95}',
-            "--hyperparams", '{"param": 10}'
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "model",
+                "save",
+                "m",
+                "1.0",
+                "--metrics",
+                '{"accuracy": 0.95}',
+                "--hyperparams",
+                '{"param": 10}',
+            ],
+        )
         # Should fail on API connection, not JSON parsing
         assert "JSON" not in result.output or "invalid" not in result.output.lower()

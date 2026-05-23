@@ -5,7 +5,6 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from modeltrack.models.registry import ModelRegistry, Model
-from modeltrack.shared.utils import generate_id
 
 
 # Generate training data
@@ -48,6 +47,6 @@ if __name__ == "__main__":
 
     registry.save(reg_model)
 
-    print(f"✓ Model registered: yield_predictor:1.0.0")
+    print("✓ Model registered: yield_predictor:1.0.0")
     print(f"  Train R²: {train_score:.3f}")
     print(f"  Test R²: {test_score:.3f}")

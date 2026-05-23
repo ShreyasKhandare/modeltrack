@@ -3,7 +3,6 @@ FastAPI application factory and entry point for ModelTrack REST API.
 """
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 
 from .pipeline_routes import router as pipeline_router
 from .model_routes import router as model_router

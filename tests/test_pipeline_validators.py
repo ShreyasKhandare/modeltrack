@@ -15,7 +15,6 @@ from modeltrack.pipelines.validators import (
     ValidationReport,
 )
 
-
 # ─────────────────────────── ValidationReport ────────────────────────────────
 
 
@@ -93,9 +92,7 @@ class TestNullChecker:
         assert not report.is_valid
 
     def test_multiple_columns(self):
-        df = pd.DataFrame(
-            {"a": [None, None, 1, 2], "b": [1.0, 2.0, 3.0, 4.0]}
-        )
+        df = pd.DataFrame({"a": [None, None, 1, 2], "b": [1.0, 2.0, 3.0, 4.0]})
         checker = NullChecker(["a", "b"], max_null_pct=0.1)
         report = checker.check(df)
         assert not report.is_valid  # col 'a' has 50% nulls
@@ -213,20 +210,13 @@ class TestDataValidator:
         assert report.is_valid
 
     def test_composite_all_pass(self, sample_df):
-        dv = (
-            DataValidator()
-            .add(NullChecker(["id", "value"]))
-            .add(DuplicateChecker())
-        )
+        dv = DataValidator().add(NullChecker(["id", "value"])).add(DuplicateChecker())
         report = dv.validate(sample_df)
         assert report.is_valid
 
     def test_composite_one_fails(self):
         df = pd.DataFrame({"col": [None] * 60 + [1.0] * 40})
-        dv = (
-            DataValidator()
-            .add(NullChecker(["col"], max_null_pct=0.05))
-        )
+        dv = DataValidator().add(NullChecker(["col"], max_null_pct=0.05))
         report = dv.validate(df)
         assert not report.is_valid
 

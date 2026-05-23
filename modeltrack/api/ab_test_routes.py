@@ -2,7 +2,6 @@
 FastAPI routes for A/B test operations.
 """
 
-import json
 from datetime import datetime
 from typing import Optional
 

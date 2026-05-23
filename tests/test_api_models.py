@@ -57,7 +57,7 @@ class TestModelRegister:
                 "metrics": {"accuracy": 0.95, "auc": 0.92},
                 "hyperparameters": {"n_estimators": 100},
                 "description": "Test model",
-            }
+            },
         )
         assert response.status_code == 200
         data = response.json()
@@ -75,7 +75,7 @@ class TestModelRegister:
                 "name": "dup_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.95},
-            }
+            },
         )
         assert response1.status_code == 200
 
@@ -86,7 +86,7 @@ class TestModelRegister:
                 "name": "dup_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.96},
-            }
+            },
         )
         # Should return conflict error or success depending on database state
         # Structure test only - the endpoint handles both cases
@@ -99,7 +99,7 @@ class TestModelRegister:
             json={
                 "name": "invalid_model",
                 # missing required version and metrics fields
-            }
+            },
         )
         assert response.status_code == 422
 
@@ -135,7 +135,7 @@ class TestGetProductionModel:
                 "name": "prod_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.95},
-            }
+            },
         )
         assert resp1.status_code == 200
 
@@ -145,7 +145,7 @@ class TestGetProductionModel:
             json={
                 "version": "1.0.0",
                 "target_stage": "production",
-            }
+            },
         )
         assert resp2.status_code == 200
 
@@ -174,7 +174,7 @@ class TestListVersions:
                 "name": "test_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.95},
-            }
+            },
         )
         assert resp1.status_code == 200
 
@@ -184,7 +184,7 @@ class TestListVersions:
                 "name": "test_model",
                 "version": "1.1.0",
                 "metrics": {"accuracy": 0.96},
-            }
+            },
         )
         assert resp.status_code == 200
 
@@ -218,7 +218,7 @@ class TestPromoteModel:
                 "name": "promote_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.95, "auc": 0.90},
-            }
+            },
         )
         assert resp.status_code == 200
 
@@ -228,7 +228,7 @@ class TestPromoteModel:
             json={
                 "version": "1.0.0",
                 "target_stage": "staging",
-            }
+            },
         )
         assert response.status_code == 200
         data = response.json()
@@ -246,7 +246,7 @@ class TestPromoteModel:
                 "name": "gated_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.95},
-            }
+            },
         )
 
         # Promote with passing gate
@@ -255,10 +255,8 @@ class TestPromoteModel:
             json={
                 "version": "1.0.0",
                 "target_stage": "staging",
-                "gates": [
-                    {"metric": "accuracy", "threshold": 0.90, "operator": ">="}
-                ],
-            }
+                "gates": [{"metric": "accuracy", "threshold": 0.90, "operator": ">="}],
+            },
         )
         assert response.status_code == 200
 
@@ -271,7 +269,7 @@ class TestPromoteModel:
                 "name": "low_acc_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.85},
-            }
+            },
         )
 
         # Try to promote with failing gate
@@ -280,10 +278,8 @@ class TestPromoteModel:
             json={
                 "version": "1.0.0",
                 "target_stage": "staging",
-                "gates": [
-                    {"metric": "accuracy", "threshold": 0.90, "operator": ">="}
-                ],
-            }
+                "gates": [{"metric": "accuracy", "threshold": 0.90, "operator": ">="}],
+            },
         )
         assert response.status_code == 400
 
@@ -294,7 +290,7 @@ class TestPromoteModel:
             json={
                 "version": "1.0.0",
                 "target_stage": "invalid_stage",
-            }
+            },
         )
         assert response.status_code == 400
 
@@ -311,7 +307,7 @@ class TestRollbackModel:
                 "name": "rb_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.94},
-            }
+            },
         )
         client.post(
             "/models/rb_model/register",
@@ -319,17 +315,17 @@ class TestRollbackModel:
                 "name": "rb_model",
                 "version": "2.0.0",
                 "metrics": {"accuracy": 0.95},
-            }
+            },
         )
 
         # Promote both to production (sequentially)
         client.post(
             "/models/rb_model/promote",
-            json={"version": "1.0.0", "target_stage": "production"}
+            json={"version": "1.0.0", "target_stage": "production"},
         )
         client.post(
             "/models/rb_model/promote",
-            json={"version": "2.0.0", "target_stage": "production"}
+            json={"version": "2.0.0", "target_stage": "production"},
         )
 
         # Rollback
@@ -358,7 +354,7 @@ class TestCompareVersions:
                 "name": "comp_model",
                 "version": "1.0.0",
                 "metrics": {"accuracy": 0.90, "auc": 0.85},
-            }
+            },
         )
         assert resp1.status_code == 200
 
@@ -368,13 +364,13 @@ class TestCompareVersions:
                 "name": "comp_model",
                 "version": "2.0.0",
                 "metrics": {"accuracy": 0.95, "auc": 0.92},
-            }
+            },
         )
         assert resp2.status_code == 200
 
         response = client.get(
             "/models/comp_model/compare",
-            params={"version_a": "1.0.0", "version_b": "2.0.0"}
+            params={"version_a": "1.0.0", "version_b": "2.0.0"},
         )
         # May be 200 or 404 due to session isolation
         assert response.status_code in [200, 404]
@@ -387,6 +383,6 @@ class TestCompareVersions:
         """Test comparing when versions don't exist."""
         response = client.get(
             "/models/nonexistent/compare",
-            params={"version_a": "1.0.0", "version_b": "2.0.0"}
+            params={"version_a": "1.0.0", "version_b": "2.0.0"},
         )
         assert response.status_code == 404

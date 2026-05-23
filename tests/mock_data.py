@@ -14,7 +14,6 @@ from sklearn.preprocessing import StandardScaler
 from modeltrack.models.registry import Model
 from modeltrack.shared.utils import generate_id, timestamp_now
 
-
 # ─────────────────────────── DataFrame generators ────────────────────────────
 
 
@@ -89,9 +88,7 @@ def make_sklearn_classifier(seed: int = 42) -> Any:
 def make_sklearn_regressor(seed: int = 42) -> Any:
     """Return a fitted scikit-learn LinearRegression."""
     X, y = make_regression(n_samples=200, n_features=5, noise=0.1, random_state=seed)
-    pipe = SKPipeline(
-        [("scaler", StandardScaler()), ("reg", LinearRegression())]
-    )
+    pipe = SKPipeline([("scaler", StandardScaler()), ("reg", LinearRegression())])
     pipe.fit(X, y)
     return pipe
 

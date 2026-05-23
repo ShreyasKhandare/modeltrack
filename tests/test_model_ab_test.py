@@ -142,6 +142,7 @@ class TestHelperFunctions:
     def test_welch_t_test_different_data(self):
         # Data with different means and non-zero variance
         import random
+
         rng = random.Random(42)
         a = [1.0 + rng.gauss(0, 0.1) for _ in range(50)]
         b = [10.0 + rng.gauss(0, 0.1) for _ in range(50)]
