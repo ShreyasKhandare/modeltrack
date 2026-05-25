@@ -1,24 +1,22 @@
 """
 FastAPI application factory and entry point for ModelTrack REST API.
 """
-
 from fastapi import FastAPI
-
+from fastapi.responses import RedirectResponse
 from .pipeline_routes import router as pipeline_router
 from .model_routes import router as model_router
 from .ab_test_routes import router as ab_test_router
 from .middleware import add_middleware
 from ..config import get_settings
 
-
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
-
     Includes:
     - All route routers (pipelines, models, A/B tests)
     - Middleware (CORS, logging, error handling)
     - Health check endpoints
+    - Dashboard proxy endpoint
     """
     app = FastAPI(
         title="ModelTrack API",
@@ -28,22 +26,21 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         openapi_url="/openapi.json",
     )
-
+    
     # Add middleware (CORS, logging, error handlers)
     add_middleware(app)
-
+    
     # Include routers
     app.include_router(pipeline_router)
     app.include_router(model_router)
     app.include_router(ab_test_router)
-
+    
     # ─────────────────────────── Health Endpoints ────────────────────────
-
     @app.get("/health", tags=["health"])
     async def health():
         """Health check endpoint."""
         return {"status": "ok", "service": "modeltrack-api"}
-
+    
     @app.get("/", tags=["info"])
     async def root():
         """Root endpoint with API information."""
@@ -53,23 +50,31 @@ def create_app() -> FastAPI:
             "description": "Unified pipeline orchestration and model registry",
             "docs": "/docs",
             "health": "/health",
+            "dashboard": "/dashboard",
             "endpoints": {
                 "pipelines": "/pipelines",
                 "models": "/models",
                 "ab_tests": "/ab-tests",
+                "dashboard": "/dashboard",
             },
         }
-
+    
+    # ─────────────────────────── Dashboard Endpoint ────────────────────────
+    @app.get("/dashboard", tags=["dashboard"])
+    async def dashboard():
+        """
+        Dashboard endpoint - proxies to Streamlit running on port 8501.
+        Streamlit runs internally on 8501, accessible externally via /dashboard.
+        """
+        return RedirectResponse(url="http://localhost:8501")
+    
     return app
-
 
 # Module-level app instance for uvicorn / Railway
 app = create_app()
 
-
 if __name__ == "__main__":
     import uvicorn
-
     app = create_app()
     settings = get_settings()
     uvicorn.run(
