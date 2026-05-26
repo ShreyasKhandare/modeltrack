@@ -2,7 +2,7 @@
 FastAPI application factory and entry point for ModelTrack REST API.
 """
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
 from .pipeline_routes import router as pipeline_router
 from .model_routes import router as model_router
 from .ab_test_routes import router as ab_test_router
@@ -16,7 +16,7 @@ def create_app() -> FastAPI:
     - All route routers (pipelines, models, A/B tests)
     - Middleware (CORS, logging, error handling)
     - Health check endpoints
-    - Dashboard proxy endpoint
+    - Dashboard information endpoint
     """
     app = FastAPI(
         title="ModelTrack API",
@@ -47,7 +47,7 @@ def create_app() -> FastAPI:
         return {
             "name": "ModelTrack API",
             "version": "0.2.0",
-            "description": "Unified pipeline orchestration and model registry",
+            "description": "Unified pipeline orchestration and model registry with A/B testing",
             "docs": "/docs",
             "health": "/health",
             "dashboard": "/dashboard",
@@ -63,10 +63,30 @@ def create_app() -> FastAPI:
     @app.get("/dashboard", tags=["dashboard"])
     async def dashboard():
         """
-        Dashboard endpoint - proxies to Streamlit running on port 8501.
-        Streamlit runs internally on 8501, accessible externally via /dashboard.
+        Dashboard endpoint - information about the Streamlit dashboard.
+        The dashboard provides real-time monitoring of pipelines and models.
         """
-        return RedirectResponse(url="http://localhost:8501")
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "ModelTrack Dashboard",
+                "status": "running",
+                "description": "Real-time monitoring and management interface for pipelines and models",
+                "features": [
+                    "Pipeline orchestration and status monitoring",
+                    "Data quality metrics and lineage visualization",
+                    "Model registry and version management",
+                    "A/B test results and performance metrics",
+                    "Automated retraining history"
+                ],
+                "note": "Dashboard is running as part of the ModelTrack system. Access the full dashboard by running: streamlit run dashboards/main.py",
+                "api_endpoints": {
+                    "pipelines": "/pipelines",
+                    "models": "/models",
+                    "ab_tests": "/ab-tests"
+                }
+            }
+        )
     
     return app
 
