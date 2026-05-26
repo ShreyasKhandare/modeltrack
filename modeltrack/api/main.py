@@ -1,4 +1,4 @@
-"""
+""" 
 FastAPI application factory and entry point for ModelTrack REST API.
 """
 from fastapi import FastAPI
